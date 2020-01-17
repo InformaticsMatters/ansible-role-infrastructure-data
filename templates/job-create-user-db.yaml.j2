@@ -1,0 +1,50 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: create-user-db
+  namespace: {{ id_db_user_namespace }}
+spec:
+  selector:
+    name: create-user-db
+  template:
+    metadata:
+      labels:
+        name: create-user-db
+    spec:
+      serviceAccountName: {{ id_db_user_namespace_sa }}
+
+      # A 'preferred' (not guaranteed)
+      # node selection affinity...
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: purpose
+                operator: In
+                values:
+                - {{ id_node_purpose }}
+
+      containers:
+      - name: create-user-db
+        image: informaticsmatters/sql-client:{{ id_pg_sql_client_tag }}
+        env:
+        - name: DB_USER
+          value: {{ id_db_user }}
+        - name: DB_USER_PASSWORD
+          value: {{ id_db_user_password }}
+        - name: DB
+          value: {{ id_db }}
+        volumeMounts:
+        - mountPath: /home/client/script.sh
+          name: create-user-db-script
+          subPath: script.sh
+
+      volumes:
+      - name: create-user-db-script
+        configMap:
+          name: create-user-db-script
+          defaultMode: 0777
+      restartPolicy: Never

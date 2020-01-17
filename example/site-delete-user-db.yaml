@@ -1,0 +1,13 @@
+---
+
+- hosts: infra_server
+  tasks:
+  - include_role:
+      name: informaticsmatters.infrastructure_data
+    vars:
+      id_action: delete
+      id_db: blob
+      id_db_user: alan
+      id_db_user_namespace: example
+      id_db_user_namespace_sa: blob
+      id_infra_namespace: im-infra

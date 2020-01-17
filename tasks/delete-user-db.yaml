@@ -1,0 +1,86 @@
+---
+
+# Deletes a database and the database user.
+# Key, required, variables are: -
+#
+# - id_db
+# - id_db_user           <- Optional ... randomly generated if not defined
+
+- name: Pre-flight check
+  assert:
+    that:
+    - id_db is defined
+    - id_db|string|length > 0
+    - id_db != 'SetMe'
+    - id_db_user is defined
+    - id_db_user|string|length > 0
+    - id_db_user != 'SetMe'
+    - id_db_user_namespace_sa is defined
+    - id_db_user_namespace_sa|string|length > 0
+    - id_db_user_namespace_sa != 'SetMe'
+
+- name: Get user namespace
+  k8s_facts:
+    kind: Namespace
+    name: "{{ id_db_user_namespace }}"
+  register: ns_result
+
+- name: Assert user namespace
+  assert:
+    that: ns_result.resources|length == 1
+    fail_msg: User namespace does not exist
+
+- name: Get secrets (from {{ id_db_user_namespace }} namepsace)
+  k8s_facts:
+    kind: Secret
+    name: database-secrets-{{ id_db }}
+    namespace: "{{ id_db_user_namespace }}"
+  register: secret_result
+
+- name: Assert secrets exist
+  assert:
+    that: secret_result.resources|length == 1
+    fail_msg: Database secrets do not exist in the user's namespace
+
+# Looks like we're ready to go...
+
+- name: Deploy ConfigMap (delete)
+  k8s:
+    definition: "{{ lookup('template', 'configmap-postgres-delete-user-db.yaml.j2') }}"
+    wait: yes
+
+- name: Remove any existing delete Job
+  k8s:
+    state: absent
+    definition: "{{ lookup('template', 'job-delete-user-db.yaml.j2') }}"
+    wait: yes
+    wait_timeout: "{{ wait_timeout }}"
+
+- name: Launch new delete Job
+  k8s:
+    definition: "{{ lookup('template', 'job-delete-user-db.yaml.j2') }}"
+    wait: yes
+    wait_timeout: "{{ wait_timeout }}"
+
+- name: Wait for delete completion
+  k8s_facts:
+    kind: Job
+    namespace: "{{ id_db_user_namespace }}"
+    name: delete-user-db
+  register: result
+  until: >-
+    result.resources[0].status.completionTime is defined
+    or result.resources[0].status.failed is defined
+  delay: 4
+  retries: "{{ (wait_timeout|int / 4)|int }}"
+
+- name: Display Job status
+  debug:
+    var: result.resources[0].status
+
+- name: Assert create success
+  assert:
+    that:
+    - result.resources[0].status.succeeded is defined
+    - result.resources[0].status.succeeded == 1
+    - result.resources[0].status.failed is not defined
