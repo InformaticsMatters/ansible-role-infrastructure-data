@@ -3,7 +3,7 @@ Ansible Role - informaticsmatters.infrastructure_data
 
 [![Build Status](https://travis-ci.com/InformaticsMatters/ansible-role-infrastructure-data.svg?branch=master)](https://travis-ci.com/InformaticsMatters/ansible-role-infrastructure-data)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/informaticsmatters/ansible-role-infrastructure-data)
-![Ansible Role](https://img.shields.io/ansible/role/45910)
+![Ansible Role](https://img.shields.io/ansible/role/45912)
 
 A Kubernetes-based Role for the configuration of a pre-deployed infrastructure.
 This role provides actions to add, remove and alter PostgreSQL databases
