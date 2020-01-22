@@ -23,7 +23,7 @@
     - id_db_user_namespace_sa|string|length > 0
     - id_db_user_namespace_sa != 'SetMe'
 
-- name: Get user namespace
+- name: Get user namespace ({{ id_db_user_namespace }})
   k8s_facts:
     kind: Namespace
     name: "{{ id_db_user_namespace }}"
@@ -34,7 +34,7 @@
     that: ns_result.resources|length == 1
     fail_msg: User namespace does not exist
 
-- name: Get secrets (from {{ id_db_user_namespace }} namepsace)
+- name: Get secrets ({{ id_db_user_namespace }}/{{ id_db }})
   k8s_facts:
     kind: Secret
     name: database-secrets-{{ id_db }}

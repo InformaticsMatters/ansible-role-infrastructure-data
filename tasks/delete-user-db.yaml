@@ -19,7 +19,7 @@
     - id_db_user_namespace_sa|string|length > 0
     - id_db_user_namespace_sa != 'SetMe'
 
-- name: Get user namespace
+- name: Get user namespace ({{ id_db_user_namespace }})
   k8s_facts:
     kind: Namespace
     name: "{{ id_db_user_namespace }}"
@@ -30,17 +30,21 @@
     that: ns_result.resources|length == 1
     fail_msg: User namespace does not exist
 
-- name: Get secrets (from {{ id_db_user_namespace }} namepsace)
-  k8s_facts:
-    kind: Secret
-    name: database-secrets-{{ id_db }}
-    namespace: "{{ id_db_user_namespace }}"
-  register: secret_result
+- block:
 
-- name: Assert secrets exist
-  assert:
-    that: secret_result.resources|length == 1
-    fail_msg: Database secrets do not exist in the user's namespace
+  - name: Get secrets ({{ id_db_user_namespace }}/{{ id_db }})
+    k8s_facts:
+      kind: Secret
+      name: database-secrets-{{ id_db }}
+      namespace: "{{ id_db_user_namespace }}"
+    register: secret_result
+
+  - name: Assert secrets exist
+    assert:
+      that: secret_result.resources|length == 1
+      fail_msg: Database secrets do not exist in the user's namespace
+
+  when: id_check_user_secrets_on_delete|bool
 
 # Looks like we're ready to go...
 
