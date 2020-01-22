@@ -67,6 +67,12 @@ Role Variables
     # (required for 'create' and 'alter')
     # Randomly generated if not defined
     id_db_user_password: "{{ lookup('password', '/dev/null length=12 chars=ascii_letters,digits') }}"
+
+    # On removal the secrets (in the user namespace)
+    # are normally expected to exist. If they do not
+    # (i.e. you've deleted them by accident) then
+    # set the following to 'no' to skip the built-in assertion.
+    id_check_user_secrets_on_delete: yes
     
 Dependencies
 ------------
