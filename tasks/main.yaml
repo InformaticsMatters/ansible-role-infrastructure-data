@@ -32,7 +32,7 @@
   # from the 'well-known' namespace secret in the infrastructure namespace...
 
   - name: Get databse secrets
-    k8s_facts:
+    k8s_info:
       kind: Secret
       namespace: "{{ id_infra_namespace }}"
       name: im-postgres

@@ -7,7 +7,7 @@ galaxy_info:
   author: Alan B. Christie
   company: Informatics Matters Ltd
   license: Apache 2.0
-  min_ansible_version: 2.8.7
+  min_ansible_version: 2.9.5
 
   platforms:
   - name: Kubernetes

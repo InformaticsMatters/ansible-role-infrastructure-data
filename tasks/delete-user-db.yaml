@@ -20,7 +20,7 @@
     - id_db_user_namespace_sa != 'SetMe'
 
 - name: Get user namespace ({{ id_db_user_namespace }})
-  k8s_facts:
+  k8s_info:
     kind: Namespace
     name: "{{ id_db_user_namespace }}"
   register: ns_result
@@ -33,7 +33,7 @@
 - block:
 
   - name: Get secrets ({{ id_db_user_namespace }}/{{ id_db }})
-    k8s_facts:
+    k8s_info:
       kind: Secret
       name: database-secrets-{{ id_db }}
       namespace: "{{ id_db_user_namespace }}"
@@ -67,7 +67,7 @@
     wait_timeout: "{{ wait_timeout }}"
 
 - name: Wait for delete completion
-  k8s_facts:
+  k8s_info:
     kind: Job
     namespace: "{{ id_db_user_namespace }}"
     name: delete-user-db
