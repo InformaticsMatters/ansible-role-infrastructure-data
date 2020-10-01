@@ -3,11 +3,6 @@
 # The tag of the SQL client container image
 id_pg_sql_client_tag: '2020.1'
 
-# The node 'purpose' for workload deployments.
-# The database, AWX server and keycloak deployments will try to deploy
-# workloads to nodes that contain the label "purpose={{ node_purpose }}".
-id_node_purpose: application
-
 # General variables -----------------------------------------------------------
 
 # General timeout, generally used within the k8s module,
